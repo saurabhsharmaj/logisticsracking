@@ -2,24 +2,39 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const JobForm = ({ job, onSave }) => {
-  const [title, setTitle] = useState(job ? job.title : '');
-  const [description, setDescription] = useState(job ? job.description : '');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  
+  useEffect(() => {
+    if (job) {
+      setTitle(job.title);
+      setDescription(job.description);
+    }
+  }, [job]); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const jobData = { title, description };
-  
-    if (job) {
-      await axios.put(`/api/jobs/${job._id}`, jobData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-    } else {
-      await axios.post('/api/jobs', jobData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-    }
 
-    onSave();
+    try {
+      if (job) {
+       
+        await axios.put(`/api/jobs/${job._id}`, jobData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+      } else {
+       
+        await axios.post('/api/jobs', jobData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+      }
+
+      
+      onSave();
+    } catch (error) {
+      console.error('Errors savees job:', error);
+    }
   };
 
   return (
@@ -33,6 +48,7 @@ const JobForm = ({ job, onSave }) => {
       />
       <textarea
         placeholder="Job Description"
+      
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         required
